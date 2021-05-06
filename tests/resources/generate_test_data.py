@@ -2,6 +2,7 @@ import random
 import string
 import uuid
 
+random.seed(1031)
 tickers = [''.join(random.choices(string.ascii_uppercase, k=4)) for i in range(1000)]
 
 def gen_test_data():

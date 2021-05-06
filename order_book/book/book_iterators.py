@@ -26,7 +26,7 @@ class PriceBinarySearch(OrderBookIterator):
         if ask_orders is None:
             return float("inf")
         left_min = self._find_min(ask_orders.left)
-        right_min = self._find_max(ask_orders.right)
+        right_min = self._find_min(ask_orders.right)
         if left_min <= ask_orders:
             return left_min
         elif right_min <= ask_orders:
@@ -34,6 +34,13 @@ class PriceBinarySearch(OrderBookIterator):
         return ask_orders
 
     def iterate(self):
+        # if self.orders["B"].root is None:
+        #     max_buy = 0
+        #     min_ask = self._find_min(self.orders["S"].root)
+        # elif self.orders["S"].root is None:
+        #     min_ask = 0
+        #     max_buy = self._find_max(self.orders["B"].root)
+        # else:
         max_buy = self._find_max(self.orders["B"].root)
         min_ask = self._find_min(self.orders["S"].root)
         return max_buy, min_ask

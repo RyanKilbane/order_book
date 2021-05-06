@@ -19,18 +19,18 @@ def test_performance():
     # for order in data:
     #     build_book(book, order)
     start = time.time()
-    _max, _min = book.find_by("BFPP", SearchParams.PRICE)
+    _max, _min = book.find_by("ROLL", SearchParams.PRICE)
     end = time.time()
     # Time to build ~ 1.25 seconds
     print(f"time to build: {build_time}")
     # Time to find ~ 0.0001 seconds
     print(f"time to find: {end - start}")
-    assert _max.price == 9895.97896
-    assert _min.price == 746.34318
+    assert _max.price == 9894.80544
+    assert _min.price == 691.52354
     # assert False
 
 def test_large_update():
-    updated_order = "123456789|e114a4a6-28d1-4b13-8dca-70c8f9cc1bba|u|910"
+    updated_order = "123456789|9164ad9d-361c-45ff-8150-63151b0b3bc1|u|910"
     process_order(book, updated_order)
-    _max, _min = book.find_by("BFPP", SearchParams.PRICE)
+    _max, _min = book.find_by("ROLL", SearchParams.PRICE)
     assert _max.order.size == 910

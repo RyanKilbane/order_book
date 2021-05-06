@@ -50,6 +50,7 @@ class OrderBook(Book):
             # Python sets are hash sets, so this operation should O(1)
             if order.order_id in ticker_set:
                 return ticker
+
     def __getitem__(self, ticker):
         return self.tickers[ticker]
 
@@ -70,7 +71,8 @@ class TickerOrderBook(Book):
         self.orders[order.side].insert(order)
     
     def find_by(self, attribute):
-        return self._search_factory(attribute)(self.orders).iterate()
+        search = self._search_factory(attribute)
+        return search(self.orders).iterate()
         
     def _search_factory(self, attribute) -> Union[PriceBinarySearch, OrderIdLinearSearch]:
         supported_search = {SearchParams.PRICE: PriceBinarySearch,
@@ -87,7 +89,6 @@ class OrderTree:
             self.root = OrderNode(order)
         else:
             self._insert(order, self.root)
-
 
     def _insert(self, order, node):
         if order.price <= node:
