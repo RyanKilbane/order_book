@@ -1,4 +1,5 @@
 from order_book.order.order import OrderBuilder, Order
+from order_book.book.book import OrderBook
 
 def make_order(incoming_string: str) -> Order:
     order = incoming_string.split("|")
@@ -13,3 +14,7 @@ def make_order(incoming_string: str) -> Order:
         new_order.set_time(order[0]).set_order_id(order[1]).set_action(order[2])
 
     return new_order.build()
+
+def build_book(book: OrderBook, data):
+    order = make_order(data)
+    book.insert(order)
