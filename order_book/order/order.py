@@ -36,6 +36,7 @@ class OrderBuilder:
     def set_action(self, action):
         try:
             self._validate_action(action)
+            self.action = action
         except InvalidAction:
             raise InvalidAction
         return self
@@ -74,6 +75,7 @@ class OrderBuilder:
     def set_size(self, size):
         try:
             self._validate_size(size)
+            self.size = int(size)
         except InvalidSize:
             raise InvalidSize
         
