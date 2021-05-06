@@ -9,12 +9,19 @@ def make_order(incoming_string: str) -> Order:
         new_order.set_time(order[0]).set_order_id(order[1]).set_action(order[2])\
                       .set_ticker(order[3]).set_side(order[4]).set_price(order[5]).set_size(order[6])
     elif order[2] == "u":
+        # updates only require a subset
         new_order.set_time(order[0]).set_order_id(order[1]).set_action(order[2]).set_size(order[3])
     else:
+        # cancelations again only require a subset
         new_order.set_time(order[0]).set_order_id(order[1]).set_action(order[2])
 
     return new_order.build()
 
 def build_book(book: OrderBook, data):
     order = make_order(data)
-    book.insert(order)
+    if order.action == "a":
+        book.insert(order)
+    elif order.action == "u":
+        book.update_order(order)
+    else:
+        book.cancel_order(order)

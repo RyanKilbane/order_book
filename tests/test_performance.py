@@ -28,3 +28,9 @@ def test_performance():
     assert _max.price == 9895.97896
     assert _min.price == 746.34318
     # assert False
+
+def test_large_update():
+    updated_order = "123456789|e114a4a6-28d1-4b13-8dca-70c8f9cc1bba|u|910"
+    build_book(book, updated_order)
+    _max, _min = book.find_by("BFPP")
+    assert _max.order.size == 910
