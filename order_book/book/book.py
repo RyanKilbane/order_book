@@ -71,12 +71,12 @@ class OrderTree:
             if node.left is None:
                 node.left = OrderNode(order)
             else:
-                node.left = self._insert(order, node.left)
+                self._insert(order, node.left)
         else:
             if node.right is None:
                 node.right = OrderNode(order)
             else:
-                node.right = self._insert(order, node.right)
+                self._insert(order, node.right)
 
 
     def delete(self):
