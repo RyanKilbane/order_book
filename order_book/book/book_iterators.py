@@ -32,7 +32,7 @@ class PriceBinarySearch(OrderBookIterator):
             return right_min
         return ask_orders
 
-    def iterate(self):
+    def iterate(self, search_value):
         max_bid = self._find_max(self.orders["B"].root)
         min_ask = self._find_min(self.orders["S"].root)
         return max_bid, min_ask
@@ -42,5 +42,5 @@ class OrderIdLinearSearch(OrderBookIterator):
     def __init__(self, orders):
         self.orders = orders
 
-    def iterate(self):
+    def iterate(self, search_value):
         pass

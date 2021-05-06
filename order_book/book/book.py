@@ -54,8 +54,8 @@ class OrderBook(Book):
     def __getitem__(self, ticker):
         return self.tickers[ticker]
 
-    def find_by(self, ticker, attribute):
-        return self.tickers[ticker].find_by(attribute)
+    def find_by(self, ticker, attribute, search_value=None):
+        return self.tickers[ticker].find_by(attribute, search_value)
 
 
 class TickerOrderBook(Book):
@@ -70,9 +70,9 @@ class TickerOrderBook(Book):
         # This should be better than re-sorting on every add ie. O(ln(N)) VS O(Nln(N))
         self.orders[order.side].insert(order)
     
-    def find_by(self, attribute):
+    def find_by(self, attribute, search_value):
         search = self._search_factory(attribute)
-        return search(self.orders).iterate()
+        return search(self.orders).iterate(search_value)
         
     def _search_factory(self, attribute) -> Union[PriceBinarySearch, OrderIdLinearSearch]:
         supported_search = {SearchParams.PRICE: PriceBinarySearch,
