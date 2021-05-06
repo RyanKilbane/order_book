@@ -1,10 +1,12 @@
 from abc import ABC, abstractmethod
-from enum import Enum
 from typing import Dict
 
 class Book(ABC):
     @abstractmethod
     def find_by():
+        pass
+    @abstractmethod
+    def insert():
         pass
 
 
@@ -17,28 +19,34 @@ class OrderBookIterator(ABC):
 class OrderBook(Book):
     def __init__(self):
         self.tickers: Dict[str, TickerOrderBook] = {}
+        self.ids = {}
 
-    def add_new_order(self, order):
+    def insert(self, order):
         if order.ticker not in self.tickers:
             tob = TickerOrderBook()
-            tob.add(order)
+            tob.insert(order)
             self.tickers[order.ticker] = tob
         else:
-            self.tickers[order.ticker].add(order)
-
-    def cancel_order(self, order):
-        pass
+            self.tickers[order.ticker].insert(order)
+        # Potentially unsafe operation to give us O(1) updates and "cancilations"
+        self.ids[order.order_id] = order
 
     def update_order(self, order):
-        pass
+        # Since the index in self.ids points to same object as is
+        # put in our OrderTree, we can reference that to get constant time
+        # order updates. THIS OPERATION COULD BE UNSAFE!
+        self.ids[order.order_id].size = order.size
+
+    def cancel_order(self, order):
+        # Use the same pointer trick to "cancel" the order
+        # Canceled orders will still be held for a period of time
+        # But can be removed at a later time
+        self.ids[order.order_id].action = order.action
 
     def __getitem__(self, ticker):
         return self.tickers[ticker]
 
     def find_by(self, ticker, by_clause):
-        '''
-        Take param and search ticker by that clause
-        '''
         return self.tickers[ticker].find_by(by_clause)
 
 
@@ -46,12 +54,15 @@ class TickerOrderBook(Book):
     def __init__(self):
         self.orders = {"B": OrderTree(), "S": OrderTree()}
 
-    def add(self, order):
+    def __getitem__(self, side):
+        return self.orders[side]
+
+    def insert(self, order):
         # do binary search here find the correct place to slot in the new order.
         # This should be better than re-sorting on every add ie. O(ln(N)) VS O(Nln(N))
         self.orders[order.side].insert(order)
     
-    def find_by(self, by_clause):
+    def find_by(self):
         pass
 
 
@@ -77,7 +88,6 @@ class OrderTree:
                 node.right = OrderNode(order)
             else:
                 self._insert(order, node.right)
-
 
     def delete(self):
         pass
