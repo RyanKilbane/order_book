@@ -8,4 +8,3 @@ def test_performance():
     for order in data:
         build_book(book, order)
     book.find_by("BFPP")
-

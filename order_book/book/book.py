@@ -69,19 +69,25 @@ class TickerOrderBook(Book):
 
     def _find_max(self, buy_orders):
         if buy_orders is None:
-            return 0
-        while buy_orders.right is not None:
-            if buy_orders.right.order.price >= buy_orders.price:
-                return self._find_max(buy_orders.right)
+            return -float("inf")
+        left_max = self._find_max(buy_orders.left)
+        right_max = self._find_max(buy_orders.right)
+        if left_max >= buy_orders:
+            return left_max
+        elif right_max >= buy_orders:
+            return right_max
         return buy_orders
 
 
     def _find_min(self, ask_orders):
         if ask_orders is None:
-            return 0
-        while ask_orders.left is not None:
-            if ask_orders.left.order.price <= ask_orders.price:
-                return self._find_min(ask_orders.left)
+            return float("inf")
+        left_min = self._find_min(ask_orders.left)
+        right_min = self._find_max(ask_orders.right)
+        if left_min <= ask_orders:
+            return left_min
+        elif right_min <= ask_orders:
+            return right_min
         return ask_orders
 
 
