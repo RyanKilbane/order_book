@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from enum import Enum
 
 class OrderBookIterator(ABC):
     @abstractmethod
@@ -38,9 +39,52 @@ class PriceBinarySearch(OrderBookIterator):
         return max_bid, min_ask
 
 
-class OrderIdLinearSearch(OrderBookIterator):
+class OrderIdSearch(OrderBookIterator):
     def __init__(self, orders):
         self.orders = orders
 
+    def _traversal_factory(self, taversal_type):
+        traverse = {TraversalTypes.INORDER: InorderTraversal,
+                    TraversalTypes.PREORDER: PreorderTraversal,
+                    TraversalTypes.POSTORDER: PostorderTraversal}
+        return traverse[taversal_type]
+
     def iterate(self, **kwargs):
+        order_id = kwargs.get("order_id")
+        traversal_type = kwargs.get("traversal")
+        walker = self._traversal_factory(traversal_type)(self.orders)
+        for node in walker:
+            pass
+
+class InorderTraversal(OrderBookIterator):
+    def __init__(self, order):
+        self.orders = order
+
+    def iterate(self):
         pass
+
+
+class PreorderTraversal(OrderBookIterator):
+    def __init__(self, order):
+        self.orders = order
+    
+    def _preorder(self, node):
+        right = self._preorder(node.right)
+        left = self._preorder(node.left)
+
+    def iterate(self):
+        self._preorder(self.orders.root)
+
+
+class PostorderTraversal(OrderBookIterator):
+    def __init__(self, order):
+        self.orders = order
+    
+    def iterate(self):
+        pass
+
+
+class TraversalTypes(Enum):
+    INORDER = 1
+    PREORDER = 2
+    POSTORDER = 3

@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Dict, Union
 from enum import Enum
 
-from order_book.book.book_iterators import PriceBinarySearch, OrderIdLinearSearch
+from order_book.book.book_iterators import PriceBinarySearch, OrderIdSearch
 
 class Book(ABC):
     @abstractmethod
@@ -38,11 +38,11 @@ class OrderBook(Book):
         # order updates. THIS OPERATION COULD BE UNSAFE!
         self.ids[order.order_id].size = order.size
 
-    def cancel_order(self, order):
+    def cancel_order(self, order, *kwargs):
         # First find which ticker the order ID is associated with
         ticker = self._find_ticker_from_order_id(order)
         # Now do a linear search over the TickerOrderBook
-        pass
+        ticker: TickerOrderBook = self.tickers[ticker]
 
     def _find_ticker_from_order_id(self, order):
         for ticker in self.ticker_id_map:
@@ -67,14 +67,19 @@ class TickerOrderBook(Book):
 
     def insert(self, order):
         self.orders[order.side].insert(order)
+
+    def cancel_order(self, order, **kwargs):
+        order_tree = self.orders["B"]
+        
+
     
     def find_by(self, attribute, **kwargs):
         search = self._search_factory(attribute)
         return search(self.orders).iterate(**kwargs)
         
-    def _search_factory(self, attribute) -> Union[PriceBinarySearch, OrderIdLinearSearch]:
+    def _search_factory(self, attribute) -> Union[PriceBinarySearch, OrderIdSearch]:
         supported_search = {SearchParams.PRICE: PriceBinarySearch,
-                            SearchParams.ORDER: OrderIdLinearSearch}
+                            SearchParams.ORDER: OrderIdSearch}
         return supported_search[attribute]
 
 
