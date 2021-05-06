@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Dict
+from typing import Dict, Union
+from enum import Enum
 
 class Book(ABC):
     @abstractmethod
@@ -16,56 +17,9 @@ class OrderBookIterator(ABC):
         pass
 
 
-class OrderBook(Book):
-    def __init__(self):
-        self.tickers: Dict[str, TickerOrderBook] = {}
-        self.ids = {}
-
-    def insert(self, order):
-        if order.ticker not in self.tickers:
-            tob = TickerOrderBook()
-            tob.insert(order)
-            self.tickers[order.ticker] = tob
-        else:
-            self.tickers[order.ticker].insert(order)
-        # Potentially unsafe operation to give us O(1) updates and "cancilations"
-        self.ids[order.order_id] = order
-
-    def update_order(self, order):
-        # Since the index in self.ids points to same object as is
-        # put in our OrderTree, we can reference that to get constant time
-        # order updates. THIS OPERATION COULD BE UNSAFE!
-        self.ids[order.order_id].size = order.size
-
-    def cancel_order(self, order):
-        # Use the same pointer trick to "cancel" the order
-        # Canceled orders will still be held for a period of time
-        # But can be removed at a later time
-        self.ids[order.order_id].action = order.action
-
-    def __getitem__(self, ticker):
-        return self.tickers[ticker]
-
-    def find_by(self, ticker):
-        return self.tickers[ticker].find_by()
-
-
-class TickerOrderBook(Book):
-    def __init__(self):
-        self.orders = {"B": OrderTree(), "S": OrderTree()}
-
-    def __getitem__(self, side):
-        return self.orders[side]
-
-    def insert(self, order):
-        # do binary search here find the correct place to slot in the new order.
-        # This should be better than re-sorting on every add ie. O(ln(N)) VS O(Nln(N))
-        self.orders[order.side].insert(order)
-    
-    def find_by(self):
-        max_buy = self._find_max(self.orders["B"].root)
-        min_ask = self._find_min(self.orders["S"].root)
-        return max_buy, min_ask
+class PriceBinarySearch(OrderBookIterator):
+    def __init__(self, orders):
+        self.orders = orders
 
     def _find_max(self, buy_orders):
         if buy_orders is None:
@@ -89,6 +43,83 @@ class TickerOrderBook(Book):
         elif right_min <= ask_orders:
             return right_min
         return ask_orders
+
+    def iterate(self):
+        max_buy = self._find_max(self.orders["B"].root)
+        min_ask = self._find_min(self.orders["S"].root)
+        return max_buy, min_ask
+
+
+class OrderIdLinearSearch(OrderBookIterator):
+    def __init__(self, orders):
+        self.orders = orders
+
+    def iterate(self):
+        pass
+
+class OrderBook(Book):
+    def __init__(self):
+        self.tickers: Dict[str, TickerOrderBook] = {}
+        self.ids = {}
+        self.ticker_id_map = {}
+
+    def insert(self, order):
+        if order.ticker not in self.tickers:
+            tob = TickerOrderBook()
+            tob.insert(order)
+            self.tickers[order.ticker] = tob
+            # If ticker isn't in self.tickers then it also isn't in 
+            # self.ticker_id_map
+            self.ticker_id_map[order.ticker] = set().add(order)
+        else:
+            self.tickers[order.ticker].insert(order)
+        # Potentially unsafe operation to give us O(1) updates and "cancilations"
+        self.ids[order.order_id] = order
+
+    def update_order(self, order):
+        # Since the index in self.ids points to same object as is
+        # put in our OrderTree, we can reference that to get constant time
+        # order updates. THIS OPERATION COULD BE UNSAFE!
+        self.ids[order.order_id].size = order.size
+
+    def cancel_order(self, order):
+        # First find which ticker the order ID is associated with
+        ticker = self._find_ticker_from_order_id(order)
+        # Now do a linear search over the TickerOrderBook
+        pass
+
+    def _find_ticker_from_order_id(self, order):
+        for ticker in self.ticker_id_map:
+            ticker_set = self.ticker_id_map[ticker]
+            # Python sets are hash sets, so this operation should O(1)
+            if order.order_id in ticker_set:
+                return ticker
+    def __getitem__(self, ticker):
+        return self.tickers[ticker]
+
+    def find_by(self, ticker, attribute):
+        return self.tickers[ticker].find_by(attribute)
+
+
+class TickerOrderBook(Book):
+    def __init__(self):
+        self.orders = {"B": OrderTree(), "S": OrderTree()}
+
+    def __getitem__(self, side):
+        return self.orders[side]
+
+    def insert(self, order):
+        # do binary search here find the correct place to slot in the new order.
+        # This should be better than re-sorting on every add ie. O(ln(N)) VS O(Nln(N))
+        self.orders[order.side].insert(order)
+    
+    def find_by(self, attribute):
+        return self._search_factory(attribute)(self.orders).iterate()
+        
+    def _search_factory(self, attribute) -> Union[PriceBinarySearch, OrderIdLinearSearch]:
+        supported_search = {SearchParams.PRICE: PriceBinarySearch,
+                            SearchParams.ORDER: OrderIdLinearSearch}
+        return supported_search[attribute]
 
 
 class OrderTree:
@@ -144,5 +175,6 @@ class OrderNode:
         return f"{self.order.order_id}|{self.price}"
 
 
-class TickerOrderBookIterator(OrderBookIterator):
-    pass
+class SearchParams(Enum):
+    PRICE = 1
+    ORDER = 2

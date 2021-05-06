@@ -1,4 +1,4 @@
-from order_book.book.book import OrderBook, OrderNode, OrderTree, TickerOrderBook
+from order_book.book.book import OrderBook, OrderNode, OrderTree, TickerOrderBook, SearchParams
 from order_book.process import make_order
 from order_book.order.order import Order
 
@@ -124,7 +124,7 @@ def test_find_max():
     order_book.insert(lower_order)
     order_book.insert(higher_order)
     order_book.insert(fourth_order)
-    buy_max, ask_min = order_book.find_by("AAPL")
+    buy_max, ask_min = order_book.find_by("AAPL", SearchParams.PRICE)
     assert buy_max == 250
 
 def test_find_min():
@@ -141,5 +141,5 @@ def test_find_min():
     order_book.insert(lower_order)
     order_book.insert(higher_order)
     order_book.insert(fourth_order)
-    buy_max, ask_min = order_book.find_by("AAPL")
+    buy_max, ask_min = order_book.find_by("AAPL", SearchParams.PRICE)
     assert ask_min == 109
