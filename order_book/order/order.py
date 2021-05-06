@@ -31,6 +31,7 @@ class OrderBuilder:
 
     def set_order_id(self, oid):
         self.order_id = oid
+        return self
 
     def set_action(self, action):
         try:
