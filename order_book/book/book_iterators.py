@@ -10,17 +10,16 @@ class PriceBinarySearch(OrderBookIterator):
     def __init__(self, orders):
         self.orders = orders
 
-    def _find_max(self, buy_orders):
-        if buy_orders is None:
+    def _find_max(self, bid_orders):
+        if bid_orders is None:
             return -float("inf")
-        left_max = self._find_max(buy_orders.left)
-        right_max = self._find_max(buy_orders.right)
-        if left_max >= buy_orders:
+        left_max = self._find_max(bid_orders.left)
+        right_max = self._find_max(bid_orders.right)
+        if left_max >= bid_orders:
             return left_max
-        elif right_max >= buy_orders:
+        elif right_max >= bid_orders:
             return right_max
-        return buy_orders
-
+        return bid_orders
 
     def _find_min(self, ask_orders):
         if ask_orders is None:
@@ -34,16 +33,9 @@ class PriceBinarySearch(OrderBookIterator):
         return ask_orders
 
     def iterate(self):
-        # if self.orders["B"].root is None:
-        #     max_buy = 0
-        #     min_ask = self._find_min(self.orders["S"].root)
-        # elif self.orders["S"].root is None:
-        #     min_ask = 0
-        #     max_buy = self._find_max(self.orders["B"].root)
-        # else:
-        max_buy = self._find_max(self.orders["B"].root)
+        max_bid = self._find_max(self.orders["B"].root)
         min_ask = self._find_min(self.orders["S"].root)
-        return max_buy, min_ask
+        return max_bid, min_ask
 
 
 class OrderIdLinearSearch(OrderBookIterator):
