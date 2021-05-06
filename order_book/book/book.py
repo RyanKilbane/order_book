@@ -46,8 +46,8 @@ class OrderBook(Book):
     def __getitem__(self, ticker):
         return self.tickers[ticker]
 
-    def find_by(self, ticker, by_clause):
-        return self.tickers[ticker].find_by(by_clause)
+    def find_by(self, ticker):
+        return self.tickers[ticker].find_by()
 
 
 class TickerOrderBook(Book):
@@ -63,7 +63,26 @@ class TickerOrderBook(Book):
         self.orders[order.side].insert(order)
     
     def find_by(self):
-        pass
+        max_buy = self._find_max(self.orders["B"].root)
+        min_ask = self._find_min(self.orders["S"].root)
+        return max_buy, min_ask
+
+    def _find_max(self, buy_orders):
+        if buy_orders is None:
+            return 0
+        while buy_orders.right is not None:
+            if buy_orders.right.order.price >= buy_orders.price:
+                return self._find_max(buy_orders.right)
+        return buy_orders
+
+
+    def _find_min(self, ask_orders):
+        if ask_orders is None:
+            return 0
+        while ask_orders.left is not None:
+            if ask_orders.left.order.price <= ask_orders.price:
+                return self._find_min(ask_orders.left)
+        return ask_orders
 
 
 class OrderTree:

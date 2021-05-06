@@ -109,3 +109,37 @@ def test_constant_cancel():
     buy_orders: OrderTree = ticker_book["B"]
     updated_order: Order = buy_orders.root.right.order
     assert updated_order.action == "c"
+
+def test_find_max():
+    order_book = OrderBook()
+    incoming = "123456789|aab123|a|AAPL|B|209.00000|100"
+    order = make_order(incoming)
+    incoming = "123456789|aab124|a|AAPL|B|109.00000|100"
+    lower_order = make_order(incoming)
+    incoming = "123456789|aab125|a|AAPL|B|250.00000|100"
+    higher_order = make_order(incoming)
+    incoming = "123456789|aab126|a|AAPL|B|150.00000|100"
+    fourth_order = make_order(incoming)
+    order_book.insert(order)
+    order_book.insert(lower_order)
+    order_book.insert(higher_order)
+    order_book.insert(fourth_order)
+    buy_max, ask_min = order_book.find_by("AAPL")
+    assert buy_max == 250
+
+def test_find_min():
+    order_book = OrderBook()
+    incoming = "123456789|aab123|a|AAPL|S|209.00000|100"
+    order = make_order(incoming)
+    incoming = "123456789|aab124|a|AAPL|S|109.00000|100"
+    lower_order = make_order(incoming)
+    incoming = "123456789|aab125|a|AAPL|S|250.00000|100"
+    higher_order = make_order(incoming)
+    incoming = "123456789|aab126|a|AAPL|S|150.00000|100"
+    fourth_order = make_order(incoming)
+    order_book.insert(order)
+    order_book.insert(lower_order)
+    order_book.insert(higher_order)
+    order_book.insert(fourth_order)
+    buy_max, ask_min = order_book.find_by("AAPL")
+    assert ask_min == 109
