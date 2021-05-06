@@ -54,8 +54,8 @@ class OrderBook(Book):
     def __getitem__(self, ticker):
         return self.tickers[ticker]
 
-    def find_by(self, ticker, attribute, **kwargs):
-        return self.tickers[ticker].find_by(attribute, **kwargs)
+    def find_by(self, ticker, search_type, **kwargs):
+        return self.tickers[ticker].find_by(search_type, **kwargs)
 
 
 class TickerOrderBook(Book):
@@ -70,9 +70,7 @@ class TickerOrderBook(Book):
 
     def cancel_order(self, order, **kwargs):
         order_tree = self.orders["B"]
-        
 
-    
     def find_by(self, attribute, **kwargs):
         search = self._search_factory(attribute)
         return search(self.orders).iterate(**kwargs)
@@ -110,7 +108,9 @@ class OrderTree:
 
     def update(self):
         pass
-
+    
+    def __contains__(self, order, **kwargs):
+        return order.order_id in OrderIdSearch(self).iterate(kwargs)
 
 class OrderNode:
     def __init__(self, order):

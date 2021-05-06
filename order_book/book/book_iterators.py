@@ -53,8 +53,7 @@ class OrderIdSearch(OrderBookIterator):
         order_id = kwargs.get("order_id")
         traversal_type = kwargs.get("traversal")
         walker = self._traversal_factory(traversal_type)(self.orders)
-        for node in walker:
-            pass
+        return walker.iterate()
 
 class InorderTraversal(OrderBookIterator):
     def __init__(self, order):
@@ -67,14 +66,20 @@ class InorderTraversal(OrderBookIterator):
 class PreorderTraversal(OrderBookIterator):
     def __init__(self, order):
         self.orders = order
+        self.arr = []
     
     def _preorder(self, node):
-        right = self._preorder(node.right)
-        left = self._preorder(node.left)
+        if node.left is not None:
+            self.arr.append(node.left.order.order_id)
+            left = self._preorder(node.left)
+        if node.right is not None:
+            self.arr.append(node.right.order.order_id)
+            right = self._preorder(node.right)
 
     def iterate(self):
-        self._preorder(self.orders.root)
-
+        self.arr.append(self.orders["B"].root.order.order_id)
+        bid = self._preorder(self.orders["B"].root)
+        return self.arr
 
 class PostorderTraversal(OrderBookIterator):
     def __init__(self, order):
