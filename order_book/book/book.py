@@ -42,7 +42,7 @@ class OrderBook(ABC):
 
 class TickerOrderBook(ABC):
     def __init__(self):
-        self.orders = {"B": [], "S": []}
+        self.orders = {"B": OrderTree(), "S": OrderTree()}
 
     def add(self, order):
         # do binary search here find the correct place to slot in the new order.
@@ -50,25 +50,34 @@ class TickerOrderBook(ABC):
         self.orders[order.side].append(order)
     
     def find_by(self, by_clause):
-        if by_clause is SearchParams.MAX:
-            # The max value should always be the last element
-            return self.orders[-1]
-        elif by_clause is SearchParams.MIN:
-            # The min value should always be the first element
-            return self.orders[0]
-
-    def _find_by_max(self):
         pass
 
-    def _find_by_min(self):
-        pass
 
+class OrderTree:
+    def __init__(self):
+        self.left = None
+        self.right = None
+
+
+class OrderNode:
+    def __init__(self, order):
+        self.order = order
+        self.price = order.price
+
+    def __eq__(self, compare):
+        return compare == self.price
+
+    def __ne__(self, o: object) -> bool:
+        return o != self.price
+
+    def __le__(self, compare):
+        return self.price <= compare
+
+    def __ge__(self, compare):
+        return self.price >= compare
+
+    def __str__(self):
+        return f"{self.order.order_id}|{self.price}"
 
 class OrderBookIterator(BookIterator):
     pass
-
-
-class SearchParams(Enum):
-    MAX = 1
-    MIN = 2
-    OTHER = 3
