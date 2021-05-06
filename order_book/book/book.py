@@ -1,14 +1,14 @@
-from abc import ABC, AbstractMethod
+from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Dict
 
 class Book(ABC):
-    @AbstractMethod
+    @abstractmethod
     def find_by():
         pass
 
 class BookIterator(ABC):
-    @AbstractMethod
+    @abstractmethod
     def iterate():
         pass
 
@@ -21,7 +21,14 @@ class OrderBook(ABC):
             tob = TickerOrderBook()
             tob.add(order)
             self.tickers[order.ticker] = tob
-        self.tickers[order.ticker].add(order)
+        else:
+            self.tickers[order.ticker].add(order)
+
+    def cancel_order(self, order):
+        pass
+
+    def update_order(self, order):
+        pass
 
     def __getitem__(self, ticker):
         return self.tickers[ticker]
@@ -35,12 +42,12 @@ class OrderBook(ABC):
 
 class TickerOrderBook(ABC):
     def __init__(self):
-        self.orders = []
+        self.orders = {"B": [], "S": []}
 
     def add(self, order):
         # do binary search here find the correct place to slot in the new order.
         # This should be better than re-sorting on every add ie. O(ln(N)) VS O(Nln(N))
-        self.order.append(order)
+        self.orders[order.side].append(order)
     
     def find_by(self, by_clause):
         if by_clause is SearchParams.MAX:
