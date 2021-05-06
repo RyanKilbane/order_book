@@ -38,12 +38,17 @@ class TickerOrderBook(ABC):
         self.orders = []
 
     def add(self, order):
-        # do binary search here
-        # Find 
+        # do binary search here find the correct place to slot in the new order.
+        # This should be better than re-sorting on every add ie. O(ln(N)) VS O(Nln(N))
         self.order.append(order)
     
     def find_by(self, by_clause):
-        pass
+        if by_clause is SearchParams.MAX:
+            # The max value should always be the last element
+            return self.orders[-1]
+        elif by_clause is SearchParams.MIN:
+            # The min value should always be the first element
+            return self.orders[0]
 
     def _find_by_max(self):
         pass
