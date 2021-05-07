@@ -13,11 +13,6 @@ end = time.time()
 build_time = end - start
 
 def test_performance():
-    # with open("/home/ryan/Documents/project-repos/order_book/test_data.txt", "r") as f:
-    #     data =  f.readlines()
-    # book = OrderBook()
-    # for order in data:
-    #     build_book(book, order)
     start = time.time()
     _max, _min = book.find_by("ROLL", SearchParams.PRICE)
     end = time.time()

@@ -45,6 +45,7 @@ class OrderBook(Book):
         ticker = self._find_ticker_from_order_id(order)
         # Now do a linear search over the TickerOrderBook
         ticker: TickerOrderBook = self.tickers[ticker]
+        ticker.cancel_order(order)
 
     def _find_ticker_from_order_id(self, order):
         for ticker in self.ticker_id_map:
@@ -75,16 +76,16 @@ class TickerOrderBook(Book):
         self.orders[order.side].insert(order)
 
     def cancel_order(self, order, **kwargs):
-        order_tree = self.orders["B"]
+        pass
 
-    def find_by(self, attribute, **kwargs):
-        search = self._search_factory(attribute)
+    def find_by(self, search_type, **kwargs):
+        search = self._search_factory(search_type)
         return search(self.orders).iterate(**kwargs)
         
-    def _search_factory(self, attribute) -> Union[PriceBinarySearch, OrderIdSearch]:
+    def _search_factory(self, search_type) -> Union[PriceBinarySearch, OrderIdSearch]:
         supported_search = {SearchParams.PRICE: PriceBinarySearch,
                             SearchParams.ORDER: OrderIdSearch}
-        return supported_search[attribute]
+        return supported_search[search_type]
 
 
 class OrderTree:
