@@ -12,6 +12,12 @@ class Book(ABC):
     @abstractmethod
     def insert():
         pass
+    @abstractmethod
+    def update_order():
+        pass
+    @abstractmethod
+    def cancel_order():
+        pass
 
 
 class OrderBook(Book):
@@ -98,6 +104,9 @@ class TickerOrderBook(Book):
         # Now we've re built the OrderTree's without the canceled order
         # Overwrite the old OrderTree
         self.orders = new_orders
+
+    def update_order():
+        pass
 
     def find_by(self, search_type, **kwargs):
         search = self._search_factory(search_type)
