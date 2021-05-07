@@ -13,6 +13,15 @@ def test_order_builder():
     order = order_builder.build()
     assert isinstance(order, Order)
 
+def test_update_order():
+    order_builder = OrderBuilder()
+    order_builder.set_action("a")
+    order_builder.set_order_id("1234abcd")
+    order_builder.set_price("123.03123")
+    order_builder.set_side("B")
+    order = order_builder.build()
+    assert isinstance(order, Order)
+
 def test_order_invalid_action():
     order_builder = OrderBuilder()
     with raises(InvalidAction) as err:
