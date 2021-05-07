@@ -3,11 +3,12 @@ import string
 import uuid
 
 random.seed(1031)
+uuid.UUID(int=random.getrandbits(124))
 tickers = [''.join(random.choices(string.ascii_uppercase, k=4)) for i in range(1000)]
 
 def gen_test_data():
     data = [["123456789",
-             str(uuid.uuid4()),
+             str(uuid.UUID(int=random.getrandbits(124), version=4)),
              "a",
              random.choice(tickers),
              random.choice(["B", "S"]),
