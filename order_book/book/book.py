@@ -3,7 +3,7 @@ from order_book.book.exceptions import NoTickerException
 from typing import Dict, Set, Union
 from enum import Enum
 
-from order_book.book.book_iterators import PriceBinarySearch, OrderIdSearch
+from order_book.book.book_iterators import PriceBinarySearch, OrderIdSearch, TraversalTypes
 
 class Book(ABC):
     @abstractmethod
@@ -77,7 +77,27 @@ class TickerOrderBook(Book):
         self.orders[order.side].insert(order)
 
     def cancel_order(self, order, **kwargs):
-        pass
+        '''
+        Cancel order is really a rebuild of the tree... not a great solution, but it's a solution
+        Should hopefully give us O(N) cancelations, not as good as I would want, but I think it's 
+        about as good as we can get. Maybe build a secondary tree, using deep copy, I'm not sure.
+        '''
+        new_orders = {"B": OrderTree(), "S": OrderTree()}
+        bids, asks = self.find_by(SearchParams.ORDER, taversal=TraversalTypes.INORDER)
+        for bid in bids:
+            if bid.order_id == order.order_id:
+                continue
+            else:
+                new_orders["B"].insert(bid)
+        
+        for ask in asks:
+            if ask.order_id == order.order_id:
+                continue
+            else:
+                new_orders["S"].insert(ask)
+        # Now we've re built the OrderTree's without the canceled order
+        # Overwrite the old OrderTree
+        self.orders = new_orders
 
     def find_by(self, search_type, **kwargs):
         search = self._search_factory(search_type)

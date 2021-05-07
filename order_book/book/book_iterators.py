@@ -68,8 +68,9 @@ class InorderTraversal(OrderBookIterator):
             self._inorder(node.right)
 
     def iterate(self):
-        self._inorder(self.orders["B"].root)
-        return self.arr
+        bids = self._inorder(self.orders["B"].root)
+        asks = self._inorder(self.orders["S"].root)
+        return bids, asks
 
 
 class PreorderTraversal(OrderBookIterator):
