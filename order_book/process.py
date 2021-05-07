@@ -18,7 +18,7 @@ def make_order(incoming_string: str) -> Order:
 
     return new_order.build()
 
-def process_order(book: OrderBook, data):
+def process_order(book: OrderBook, data: str):
     order = make_order(data)
     if order.action == "a":
         book.insert(order)

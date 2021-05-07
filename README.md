@@ -6,4 +6,4 @@ In the end I think I've managed the following:
 
 Get best bid/ask: `O(ln(n))`
 Update order: `O(1)`
-Cancel order: `O(m+n)`
+Cancel order: `O(n)`

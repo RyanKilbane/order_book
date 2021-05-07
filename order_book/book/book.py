@@ -71,7 +71,7 @@ class OrderBook(Book):
         return self.tickers[ticker]
 
     def find_by(self, ticker, search_type, **kwargs):
-        return self.tickers[ticker].find_by(search_type, **kwargs)
+        return self[ticker].find_by(search_type, **kwargs)
 
 
 class TickerOrderBook(Book):
