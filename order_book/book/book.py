@@ -28,12 +28,12 @@ class OrderBook(Book):
             # If ticker isn't in self.tickers then it also isn't in 
             # self.ticker_id_map
             self.ticker_id_map[order.ticker] = set()
-            self.ticker_id_map[order.ticker].add(order)
+            self.ticker_id_map[order.ticker].add(order.order_id)
         else:
             self.tickers[order.ticker].insert(order)
             # Potentially unsafe operation to give us O(1) updates
             self.ids[order.order_id] = order
-            self.ticker_id_map[order.ticker].add(order)
+            self.ticker_id_map[order.ticker].add(order.order_id)
 
     def update_order(self, order):
         # Since the index in self.ids points to same object as is
@@ -83,18 +83,18 @@ class TickerOrderBook(Book):
         about as good as we can get. Maybe build a secondary tree, using deep copy, I'm not sure.
         '''
         new_orders = {"B": OrderTree(), "S": OrderTree()}
-        bids, asks = self.find_by(SearchParams.ORDER, taversal=TraversalTypes.INORDER)
+        bids, asks = self.find_by(SearchParams.ORDER, traversal=TraversalTypes.INORDER)
         for bid in bids:
-            if bid.order_id == order.order_id:
+            if bid.order.order_id == order.order_id:
                 continue
             else:
-                new_orders["B"].insert(bid)
+                new_orders["B"].insert(bid.order)
         
         for ask in asks:
-            if ask.order_id == order.order_id:
+            if ask.order.order_id == order.order_id:
                 continue
             else:
-                new_orders["S"].insert(ask)
+                new_orders["S"].insert(ask.order)
         # Now we've re built the OrderTree's without the canceled order
         # Overwrite the old OrderTree
         self.orders = new_orders
