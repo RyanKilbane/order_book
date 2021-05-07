@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from enum import Enum
-from order_book.book.book import OrderTree
 from typing import Dict
 
 class OrderBookIterator(ABC):
@@ -42,7 +41,7 @@ class PriceBinarySearch(OrderBookIterator):
 
 
 class OrderIdSearch(OrderBookIterator):
-    def __init__(self, orders: Dict[str, OrderTree]):
+    def __init__(self, orders):
         self.orders = orders
 
     def _traversal_factory(self, taversal_type):
@@ -62,7 +61,7 @@ class InorderTraversal(OrderBookIterator):
         self.orders = order
         self.arr = []
 
-    def _inorder(self, node: OrderTree):
+    def _inorder(self, node):
         if node:
             self._inorder(node.left)
             self.arr.append(node)
@@ -78,7 +77,7 @@ class PreorderTraversal(OrderBookIterator):
         self.orders = order
         self.arr = []
     
-    def _preorder(self, node: OrderTree):
+    def _preorder(self, node):
         if node.left is not None:
             self.arr.append(node.left.order.order_id)
             left = self._preorder(node.left)

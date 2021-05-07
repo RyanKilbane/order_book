@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from order_book.book.exceptions import NoTickerException
-from typing import Dict, Union
+from typing import Dict, Set, Union
 from enum import Enum
 
 from order_book.book.book_iterators import PriceBinarySearch, OrderIdSearch
@@ -27,12 +27,13 @@ class OrderBook(Book):
             self.tickers[order.ticker] = tob
             # If ticker isn't in self.tickers then it also isn't in 
             # self.ticker_id_map
-            self.ticker_id_map[order.ticker] = set().add(order)
+            self.ticker_id_map[order.ticker] = set()
+            self.ticker_id_map[order.ticker].add(order)
         else:
             self.tickers[order.ticker].insert(order)
-        # Potentially unsafe operation to give us O(1) updates
-        self.ids[order.order_id] = order
-        self.ticker_id_map[order.ticker].add(order)
+            # Potentially unsafe operation to give us O(1) updates
+            self.ids[order.order_id] = order
+            self.ticker_id_map[order.ticker].add(order)
 
     def update_order(self, order):
         # Since the index in self.ids points to same object as is
