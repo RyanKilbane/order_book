@@ -1,5 +1,6 @@
+from order_book.book.exceptions import NoTickerException
 from order_book.order.order import OrderBuilder, Order
-from order_book.book.book import OrderBook
+from order_book.book.book import OrderBook, SearchParams
 
 def make_order(incoming_string: str) -> Order:
     order = incoming_string.split("|")
@@ -25,3 +26,10 @@ def process_order(book: OrderBook, data):
         book.update_order(order)
     else:
         book.cancel_order(order)
+
+def get_best_bid_ask(book: OrderBook, ticker: str):
+    try:
+        bid, ask = book.find_by(ticker, SearchParams.PRICE)
+    except NoTickerException as e:
+        return 0
+    return bid, ask

@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from order_book.book.exceptions import NoTickerException
 from typing import Dict, Union
 from enum import Enum
 
@@ -54,6 +55,8 @@ class OrderBook(Book):
                 return ticker
 
     def __getitem__(self, ticker):
+        if ticker not in self.tickers:
+            raise NoTickerException(f"The requested ticker: {ticker} doesn't exist")
         return self.tickers[ticker]
 
     def find_by(self, ticker, search_type, **kwargs):
