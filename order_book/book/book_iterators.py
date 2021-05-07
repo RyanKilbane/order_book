@@ -58,9 +58,17 @@ class OrderIdSearch(OrderBookIterator):
 class InorderTraversal(OrderBookIterator):
     def __init__(self, order):
         self.orders = order
+        self.arr = []
+
+    def _inorder(self, node):
+        if node:
+            self._inorder(node.left)
+            self.arr.append(node)
+            self._inorder(node.right)
 
     def iterate(self):
-        pass
+        self._inorder(self.orders["B"].root)
+        return self.arr
 
 
 class PreorderTraversal(OrderBookIterator):
