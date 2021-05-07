@@ -4,7 +4,9 @@ import time
 import pytest
 
 pytestmark = pytest.mark.skip(reason="relatively long tests that require generation of test data")
-
+'''
+If you want to run these tests, first generate some test data using tests/resources/generate_test_data.py
+'''
 with open("/home/ryan/Documents/project-repos/order_book/test_data.txt", "r") as f:
     data =  f.readlines()
 book = OrderBook()
