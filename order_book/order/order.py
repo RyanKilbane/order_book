@@ -37,8 +37,8 @@ class OrderBuilder:
         try:
             self._validate_action(action)
             self.action = action
-        except InvalidAction:
-            raise InvalidAction
+        except InvalidAction as e:
+            raise e
         return self
 
     def _validate_action(self, action):
@@ -56,8 +56,8 @@ class OrderBuilder:
         try:
             self._validate_side(side)
             self.side = side
-        except InvalidSide:
-            raise InvalidSide
+        except InvalidSide as e:
+            raise e
         return self
 
     def _validate_side(self, side):
@@ -76,8 +76,8 @@ class OrderBuilder:
         try:
             self._validate_size(size)
             self.size = int(size)
-        except InvalidSize:
-            raise InvalidSize
+        except InvalidSize as e:
+            raise e
         
     def _validate_size(self, size):
         # First ensure size is an int
@@ -86,7 +86,7 @@ class OrderBuilder:
         except ValueError:
             raise InvalidSize("Could not convert given size to an integer")
         
-        if int(size) < 0:
+        if int(size) <= 0:
             raise InvalidSize("Size can not be less than zero")
 
     def build(self):
@@ -101,3 +101,6 @@ class Order:
         self.side = order_builder.side
         self.price = order_builder.price
         self.size = order_builder.size
+
+    def __str__(self):
+        return f"{self.time_stamp}|{self.order_id}|{self.action}|{self.ticker}|{self.side}|{self.price}|{self.size}"

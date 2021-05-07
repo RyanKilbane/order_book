@@ -29,7 +29,7 @@ class OrderBook(Book):
             self.ticker_id_map[order.ticker] = set().add(order)
         else:
             self.tickers[order.ticker].insert(order)
-        # Potentially unsafe operation to give us O(1) updates and "cancilations"
+        # Potentially unsafe operation to give us O(1) updates
         self.ids[order.order_id] = order
 
     def update_order(self, order):
@@ -47,7 +47,9 @@ class OrderBook(Book):
     def _find_ticker_from_order_id(self, order):
         for ticker in self.ticker_id_map:
             ticker_set = self.ticker_id_map[ticker]
-            # Python sets are hash sets, so this operation should O(1)
+            # Python sets are hash sets, so this operation should be O(1)
+            # which means finding a ticker from an order should only be bound
+            # by the number of tickers. Hopefully tickers << orders.
             if order.order_id in ticker_set:
                 return ticker
 
@@ -112,6 +114,7 @@ class OrderTree:
     def __contains__(self, order, **kwargs):
         return order.order_id in OrderIdSearch(self).iterate(kwargs)
 
+
 class OrderNode:
     def __init__(self, order):
         self.order = order
@@ -132,7 +135,7 @@ class OrderNode:
         return self.price >= compare
 
     def __str__(self):
-        return f"{self.order.order_id}|{self.price}"
+        return f"{str(self.order)}"
 
 
 class SearchParams(Enum):
