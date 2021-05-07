@@ -1,7 +1,9 @@
 from order_book.process import process_order
 from order_book.book.book import OrderBook, PriceBinarySearch, SearchParams
 import time
+import pytest
 
+pytestmark = pytest.mark.skip(reason="relatively long tests that require generation of test data")
 
 with open("/home/ryan/Documents/project-repos/order_book/test_data.txt", "r") as f:
     data =  f.readlines()
@@ -29,3 +31,11 @@ def test_large_update():
     process_order(book, updated_order)
     _max, _min = book.find_by("ROLL", SearchParams.PRICE)
     assert _max.order.size == 910
+
+def test_large_cancel():
+    cancel_order = "123456789|9164ad9d-361c-45ff-8150-63151b0b3bc1|c"
+    start = time.time()
+    process_order(book, cancel_order)
+    end = time.time()
+    # Time to cancel ~ 0.001 s
+    print(f"cancelation: {end - start}")
