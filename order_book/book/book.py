@@ -32,6 +32,7 @@ class OrderBook(Book):
             self.tickers[order.ticker].insert(order)
         # Potentially unsafe operation to give us O(1) updates
         self.ids[order.order_id] = order
+        self.ticker_id_map[order.ticker].add(order)
 
     def update_order(self, order):
         # Since the index in self.ids points to same object as is
