@@ -28,11 +28,19 @@ def test_inorder_traversal():
     incoming = "123456789|aab125|a|AAPL|B|250.00000|100"
     higher_order = make_order(incoming)
     incoming = "123456789|aab126|a|AAPL|B|150.00000|100"
+    fifth_order = make_order(incoming)
+    incoming = "123456789|aab127|a|AAPL|S|150.00000|100"
     fourth_order = make_order(incoming)
     order_book.insert(order)
     order_book.insert(lower_order)
     order_book.insert(higher_order)
     order_book.insert(fourth_order)
-    x = order_book.find_by("AAPL", SearchParams.ORDER, traversal=TraversalTypes.INORDER)
-    oids = [i.order.order_id for i in x]
-    assert ["aab124", "aab126", "aab123", "aab125"] == oids
+    order_book.insert(fifth_order)
+    bids, asks = order_book.find_by("AAPL", SearchParams.ORDER, traversal=TraversalTypes.INORDER)
+    oids = [i.order.order_id for i in bids]
+    # assert ["aab124", "aab126", "aab123", "aab125"] == oids
+    assert len(oids) == 4
+    assert oids[0] == "aab124"
+    assert oids[1] == "aab126"
+    assert oids[2] == "aab123"
+    assert oids[3] == "aab125"
