@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from order_book.order.order import Order
 from order_book.book.exceptions import NoTickerException
 from typing import Dict, Set, Union
 from enum import Enum
@@ -35,6 +36,7 @@ class OrderBook(Book):
             # self.ticker_id_map
             self.ticker_id_map[order.ticker] = set()
             self.ticker_id_map[order.ticker].add(order.order_id)
+            self.ids[order.order_id] = order
         else:
             self.tickers[order.ticker].insert(order)
             # Potentially unsafe operation to give us O(1) updates
@@ -56,7 +58,7 @@ class OrderBook(Book):
 
     def _find_ticker_from_order_id(self, order):
         for ticker in self.ticker_id_map:
-            ticker_set = self.ticker_id_map[ticker]
+            ticker_set: Set[Order] = self.ticker_id_map[ticker]
             # Python sets are hash sets, so this operation should be O(1)
             # which means finding a ticker from an order should only be bound
             # by the number of tickers. Hopefully tickers << orders.
@@ -145,9 +147,6 @@ class OrderTree:
 
     def update(self):
         pass
-    
-    def __contains__(self, order, **kwargs):
-        return order.order_id in OrderIdSearch(self).iterate(kwargs)
 
 
 class OrderNode:
