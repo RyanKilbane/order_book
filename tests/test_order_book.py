@@ -47,3 +47,9 @@ def test_cancel_order():
     oids = [i.order.order_id for i in bid]
     # Now aab125 SHOULD NOT be in oids
     assert "aab125" not in oids
+
+
+def test_raises_no_ticker_exception():
+    order_book = OrderBook()
+    with raises(NoTickerException) as e:
+        order_book.find_by("AAPL", SearchParams.ORDER, traversal=TraversalTypes.INORDER)
