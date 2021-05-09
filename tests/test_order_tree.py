@@ -1,6 +1,7 @@
 from order_book.book.book import OrderBook, OrderNode, OrderTree, TickerOrderBook, SearchParams
 from order_book.process import make_order
 from order_book.order.order import Order
+from order_book.book.search_builder import SearchBuilder
 
 def test_overloads():
     incoming = "123456789|abbb111|a|AAPL|B|209.00000|100"
@@ -124,7 +125,8 @@ def test_find_max():
     order_book.insert(lower_order)
     order_book.insert(higher_order)
     order_book.insert(fourth_order)
-    buy_max, ask_min = order_book.find_by("AAPL", SearchParams.PRICE)
+    search_params = SearchBuilder().add_search("price").build()
+    buy_max, ask_min = order_book.find_by("AAPL", search_params)
     assert buy_max == 250
 
 def test_find_min():
@@ -141,5 +143,6 @@ def test_find_min():
     order_book.insert(lower_order)
     order_book.insert(higher_order)
     order_book.insert(fourth_order)
-    buy_max, ask_min = order_book.find_by("AAPL", SearchParams.PRICE)
+    search_params = SearchBuilder().add_search("price").build()
+    buy_max, ask_min = order_book.find_by("AAPL", search_params)
     assert ask_min == 109

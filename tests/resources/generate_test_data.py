@@ -15,7 +15,7 @@ def gen_test_data():
              "{:.5f}".format(random.uniform(10, 10000)),
              str(random.randint(1, 1000))] for _ in range(10**5)]
     x = "\n".join('|'.join(i) for i in data)
-    with open("/home/ryan/Documents/project-repos/order_book/test_data.txt", "w") as f:
+    with open("/home/ryan/Documents/project-repos/order_book/test_data_2.txt", "w") as f:
         f.write(x)
 
 gen_test_data()

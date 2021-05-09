@@ -2,6 +2,8 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Dict
 
+from order_book.book.search_builder import SearchParams
+
 class OrderBookIterator(ABC):
     @abstractmethod
     def iterate():
@@ -34,7 +36,7 @@ class PriceBinarySearch(OrderBookIterator):
             return right_min
         return ask_orders
 
-    def iterate(self, **kwargs):
+    def iterate(self, search_params):
         max_bid = self._find_max(self.orders["B"].root)
         min_ask = self._find_min(self.orders["S"].root)
         return max_bid, min_ask
@@ -45,14 +47,13 @@ class OrderIdSearch(OrderBookIterator):
         self.orders = orders
 
     def _traversal_factory(self, taversal_type):
-        traverse = {TraversalTypes.INORDER: InorderTraversal,
-                    TraversalTypes.PREORDER: PreorderTraversal,
-                    TraversalTypes.POSTORDER: PostorderTraversal}
+        traverse = {"inorder": InorderTraversal,
+                    "preorder": PreorderTraversal,
+                    "postorder": PostorderTraversal}
         return traverse[taversal_type]
 
-    def iterate(self, **kwargs):
-        order_id = kwargs.get("order_id")
-        traversal_type = kwargs.get("traversal")
+    def iterate(self, search_params: SearchParams):
+        traversal_type = search_params.traversal_type
         walker = self._traversal_factory(traversal_type)(self.orders)
         return walker.iterate()
 
@@ -103,9 +104,3 @@ class PostorderTraversal(OrderBookIterator):
     
     def iterate(self):
         raise NotImplementedError("Postorder traversal has yet to be implemented")
-
-
-class TraversalTypes(Enum):
-    INORDER = 1
-    PREORDER = 2
-    POSTORDER = 3

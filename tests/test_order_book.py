@@ -3,8 +3,7 @@ from order_book.process import make_order
 from order_book.order.order import Order, OrderBuilder
 from order_book.book.book import OrderBook, SearchParams, TickerOrderBook
 from order_book.book.exceptions import NoTickerException
-from order_book.book.book_iterators import TraversalTypes
-
+from order_book.book.search_builder import SearchBuilder
 def test_add_new_order_book():
     order_book = OrderBook()
     incoming = "123456789|abbb111|a|AAPL|B|209.00000|100"
@@ -37,13 +36,14 @@ def test_cancel_order():
     order_book.insert(fifth_order)
     # We're going to cancel order aab125
     # First make sure it's in the tree
-    bid, ask = order_book.find_by("AAPL", SearchParams.ORDER, traversal=TraversalTypes.INORDER)
+    search_params = SearchBuilder().add_search("order").add_traversal("inorder").build()
+    bid, ask = order_book.find_by("AAPL", search_params)
     oids = [i.order.order_id for i in bid]
     assert "aab125" in oids
     order_book.cancel_order(higher_order)
     # Now order aab125 should have been canceled
     # So lets traverse the tree
-    bid, ask = order_book.find_by("AAPL", SearchParams.ORDER, traversal=TraversalTypes.INORDER)
+    bid, ask = order_book.find_by("AAPL", search_params)
     oids = [i.order.order_id for i in bid]
     # Now aab125 SHOULD NOT be in oids
     assert "aab125" not in oids
@@ -51,5 +51,6 @@ def test_cancel_order():
 
 def test_raises_no_ticker_exception():
     order_book = OrderBook()
+    search_params = SearchBuilder().add_search("order").add_traversal("inorder").build()
     with raises(NoTickerException) as e:
-        order_book.find_by("AAPL", SearchParams.ORDER, traversal=TraversalTypes.INORDER)
+        order_book.find_by("AAPL", search_params)

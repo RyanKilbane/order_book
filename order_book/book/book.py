@@ -4,7 +4,8 @@ from order_book.book.exceptions import NoTickerException
 from typing import Dict, Set, Union
 from enum import Enum
 
-from order_book.book.book_iterators import PriceBinarySearch, OrderIdSearch, TraversalTypes
+from order_book.book.book_iterators import PriceBinarySearch, OrderIdSearch
+from order_book.book.search_builder import SearchBuilder, SearchParams
 
 class Book(ABC):
     @abstractmethod
@@ -71,7 +72,7 @@ class OrderBook(Book):
         return self.tickers[ticker]
 
     def find_by(self, ticker, search_type, **kwargs):
-        return self[ticker].find_by(search_type, **kwargs)
+        return self[ticker].find_by(search_type)
 
 
 class TickerOrderBook(Book):
@@ -91,7 +92,8 @@ class TickerOrderBook(Book):
         about as good as we can get. Maybe build a secondary tree, using deep copy, I'm not sure.
         '''
         new_orders = {"B": OrderTree(), "S": OrderTree()}
-        bids, asks = self.find_by(SearchParams.ORDER, traversal=TraversalTypes.INORDER)
+        search_params = SearchBuilder().add_search("order").add_traversal("inorder").build()
+        bids, asks = self.find_by(search_params)
         for bid in bids:
             if bid.order.order_id == order.order_id:
                 continue
@@ -110,14 +112,14 @@ class TickerOrderBook(Book):
     def update_order():
         pass
 
-    def find_by(self, search_type, **kwargs):
+    def find_by(self, search_type):
         search = self._search_factory(search_type)
-        return search(self.orders).iterate(**kwargs)
+        return search(self.orders).iterate(search_type)
         
-    def _search_factory(self, search_type) -> Union[PriceBinarySearch, OrderIdSearch]:
-        supported_search = {SearchParams.PRICE: PriceBinarySearch,
-                            SearchParams.ORDER: OrderIdSearch}
-        return supported_search[search_type]
+    def _search_factory(self, search_type: SearchParams) -> Union[PriceBinarySearch, OrderIdSearch]:
+        supported_search = {"price": PriceBinarySearch,
+                            "order": OrderIdSearch}
+        return supported_search[search_type.search_type]
 
 
 class OrderTree:
@@ -172,6 +174,6 @@ class OrderNode:
         return f"{str(self.order)}"
 
 
-class SearchParams(Enum):
-    PRICE = 1
-    ORDER = 2
+# class SearchParams(Enum):
+#     PRICE = 1
+#     ORDER = 2
