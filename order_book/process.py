@@ -34,5 +34,5 @@ def get_best_bid_ask(book: OrderBook, ticker: str):
     try:
         bid, ask = book.find_by(ticker, search_params)
     except NoTickerException as e:
-        return 0
+        return 0, 0
     return bid, ask
